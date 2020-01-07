@@ -11,5 +11,5 @@ docker build -t nestedcluster -f nestedcluster/Dockerfile .
 
 ### Usage
 ```
-docker run -v $(pwd):/files/ nestedcluster -h
+docker run -v $(pwd):/files/ nestedcluster -m matrix.txt -p parameters.txt
 ```
