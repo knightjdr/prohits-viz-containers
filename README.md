@@ -1,5 +1,5 @@
-# prohits-viz-containers
- Containers for third-party tools used by ProHits-viz
+# Prohits-Viz containers
+Containers for third-party tools used by ProHits-viz
 
 ## Nested cluster
 > [source](https://sourceforge.net/projects/nestedcluster/)
