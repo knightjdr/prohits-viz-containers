@@ -121,7 +121,7 @@ summarizeDP = function(bcl, pcl, phi, phi2, dat, hub.size=0.5, ...) {
     for(j in 1:n) {
       if(i != j) {
         combine = jaccard(gr[[i]]$p, gr[[j]]$p) >= 0.75
-        if(combine) {
+        if(!is.na(combine) && combine) {
           gr2[[cur]] = merge.graphlets(gr[[i]], gr[[j]])
           cur = cur + 1
         }
@@ -169,21 +169,7 @@ write.table(tmpd, "clustered-matrix.txt", sep="\t", quote=F, col.names=NA)
 heatmap.2(tmpd, Rowv=F, Colv=F, trace="n", col=rev(heat.colors(10)), breaks=seq(0,.5,by=0.05), margins=c(10,10), keysize=0.8, cexRow=0.4)
 dev.off()
 
-
 ### Statistical Plots
-dd = dist(1-cor((res$phi[,-26]), method="pearson"))
-dend = as.dendrogram(hclust(dd, "ave"))
-#plot(dend)
-
-pdf("bait2bait.pdf")
-tmp = res$phi
-colnames(tmp) = paste(colnames(res$phi), res$baitCL$Bait, sep="_")
-
-dd = cor(tmp)
-
-heatmap.2(as.matrix(dd), trace="n", breaks=seq(-1,1,by=0.1), col=(greenred(20)), cexRow=0.7, cexCol=0.7)
-dev.off()
-
 tmp = mcmc[,2]
 ymax = max(tmp)
 ymin = min(tmp)
@@ -193,3 +179,14 @@ plot(mcmc[mcmc[,4]=="G",3], type="s", xlab="Iterations", ylab="Number of Cluster
 plot(mcmc[,2], type="l", xlab="Iterations", ylab="Log-Likelihood", main="", ylim=c(ymin,ymax))
 
 dev.off()
+
+createBait2Bait = function() {
+  pdf("bait2bait.pdf")
+  tmp = res$phi
+  colnames(tmp) = paste(colnames(res$phi), res$baitCL$Bait, sep="_")
+  dd = cor(tmp)
+  heatmap.2(as.matrix(dd), trace="n", breaks=seq(-1,1,by=0.1), col=(greenred(20)), cexRow=0.7, cexCol=0.7)
+  dev.off()
+}
+
+tryCatch(createBait2Bait(), error=function(e) print(e), warning=function(w) print(w))
