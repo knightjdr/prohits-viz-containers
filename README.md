@@ -11,5 +11,18 @@ docker build -t nestedcluster -f nestedcluster/Dockerfile .
 
 ### Usage
 ```
-docker run -v $(pwd):/files/ nestedcluster -m matrix.txt -p parameters.txt
+docker run -v $(pwd):/app/ nestedcluster -m matrix.txt -p parameters.txt
+```
+
+## RSVG
+> [source](https://gitlab.gnome.org/GNOME/librsvg)
+
+### Build
+```
+docker build -t rsvg -f rsvg/Dockerfile .
+```
+
+### Usage
+```
+docker run -v $(pwd):/files/ rsvg --format=png --output=./image.png --background-color=white --unlimited ./image.svg
 ```
