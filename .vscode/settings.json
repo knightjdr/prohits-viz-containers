@@ -1,0 +1,8 @@
+{
+  "files.exclude": {
+      "**/__init__.py": true
+  },
+  "python.analysis.extraPaths": [
+    "utilities/python"
+  ]
+}

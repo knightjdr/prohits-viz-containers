@@ -1,2 +1,4 @@
 fonts/
 testfiles/
+
+__pycache__/
