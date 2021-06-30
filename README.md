@@ -26,3 +26,23 @@ docker build -t rsvg -f rsvg/Dockerfile .
 ```
 docker run -v $(pwd):/files/ rsvg --format=png --output=./image.png --background-color=white --unlimited ./image.svg
 ```
+
+## Utilities
+
+### Python
+
+#### Docker
+
+1. Generate `requirements.txt` file
+```
+pipreqs utilities/python
+```
+
+2. Build
+```
+docker build -t pvutilitiespython -f utilities/python/Dockerfile .
+```
+
+#### Scripts
+
+* saint summary statistics: `docker run -v $(pwd):/files/ pvutilitiespython /app/saint_stats.py -f 0.01 -s saint.txt`

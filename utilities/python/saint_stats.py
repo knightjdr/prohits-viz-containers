@@ -4,7 +4,7 @@ from saint_stats.summarize import summarize
 '''
 Usage:
 
-python3 python/saint_stats.py \
+python3 saint_stats.py \
 -f 0.01 \
 -s saint.txt
 
