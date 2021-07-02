@@ -46,3 +46,4 @@ docker build -t pvutilitiespython -f utilities/python/Dockerfile .
 #### Scripts
 
 * saint summary statistics: `docker run -v $(pwd):/files/ pvutilitiespython /app/saint_stats.py -f 0.01 -s saint.txt`
+* saint functional enrichment analysis: `docker run -v $(pwd):/files/ pvutilitiespython /app/saint_fea.py -f 0.01 -s saint.txt`

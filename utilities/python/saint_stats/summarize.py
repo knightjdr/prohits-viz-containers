@@ -81,8 +81,5 @@ def get_min_prey_number(summary):
   return min_bait, min_preys
 
 def get_median_prey_number(summary):
-  prey_counts = []
-  for _, total in summary['interactions']['bait'].items():
-    prey_counts.append(total)
-    
+  prey_counts = [total for _, total in summary['interactions']['bait'].items()]
   return statistics.median(prey_counts)
