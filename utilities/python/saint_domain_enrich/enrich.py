@@ -6,22 +6,54 @@ import scipy.stats as stats
 
 def enrich(options):
   domains = read_domains(options.domains)
+  genemap = read_gene_map(options)
+  
   saint = read_saint(options.saint)
-  filtered_saint = read_saint(options, saint)
-  background = get_background(options, saint, domains)
+  saint_mapped = map_file_ids(saint, genemap)
+  filtered_saint = filter_saint(options, saint_mapped)
 
-  # sequence_elements_by_accession, sequence_elements = read_sequence_elements(options.gix, background)
-  # elements_by_bait = count_elements_by_bait(saint, sequence_elements_by_accession)
-  # enriched_elements_by_bait = calculate_enrichment(elements_by_bait, sequence_elements, len(background), options.fdr_enrichment)
-  # write_enriched_elements(enriched_elements_by_bait, options.saint, options.top_preys)
+  background = get_background(options, saint_mapped, domains)
+
+  domains_by_id, ids_by_domain = parse_domains(domains, background)
+  domains_by_bait = count_domains_by_bait(filtered_saint, domains_by_id)
+  enriched_domains_by_bait = calculate_enrichment(domains_by_bait, ids_by_domain, len(background), options.fdr_enrichment)
+
+  write_enriched_domains(options, enriched_domains_by_bait)
 
 def read_domains(domainfile):
   with open(domainfile) as json_data:
     return json.load(json_data)
 
+def read_gene_map(options):
+  genemapfile = options.genemap
+  idtype = options.idtype
+
+  def parse_list_ids(ids, genemap, value):
+    for id in ids[idtype]:
+      genemap[id] = value
+  def parse_string_id(ids, genemap, value):
+    genemap[ids[idtype]] = value
+  
+  parse_ids = parse_list_ids
+  if idtype == 'entrez':
+    parse_ids = parse_string_id
+
+  with open(genemapfile) as json_data:
+    data = json.load(json_data)
+
+    genemap = {}
+    for hugoid, ids in data.items():
+      parse_ids(ids, genemap, hugoid)
+    return genemap
+
 def read_saint(saintfile):
   columns = ['Bait', 'Prey', 'PreyGene', 'AvgSpec', 'BFDR']
   return pd.read_csv(saintfile, sep='\t', usecols=columns)
+
+def map_file_ids(saint, genemap):
+  mapped = saint
+  mapped.Prey = mapped.Prey.map(genemap).fillna(mapped.Prey)
+  return mapped
 
 def filter_saint(options, saint):
   fdr = options.fdr
@@ -43,125 +75,113 @@ def get_background(options, saint, domains):
 
   return list(saint.Prey.unique())
 
-def read_sequence_elements(db_file, background):
-  sequence_elements = {}
-  sequence_elements_by_accession = {}
+def parse_domains(domain_list_by_id, background_ids):
+  ids_by_domain = {}
+  domains_by_id = {}
 
-  with open(db_file) as json_data:
-    data = json.load(json_data)
+  for id, domains in domain_list_by_id.items():
+    if id in background_ids:
+      elements = {}
+      for domain in domains:
+        if domain['name'] not in ids_by_domain:
+          ids_by_domain[domain['name']] = []
 
-    for entry in data:
-      if any(accession in background for accession in entry['uniprot']):
-        accession = entry['uniprot'][0]
-        symbol = entry['gene']
-    
-        elements = {}
-        for element in entry['domains']:
-          if element['name'] not in sequence_elements:
-            sequence_elements[element['name']] = {}
-          sequence_elements[element['name']][accession] = symbol
+        if domain['name'] not in elements:
+          ids_by_domain[domain['name']].append(id)
+          elements[domain['name']] = {
+            'count': 0,
+            'length': 0,
+          }
+        elements[domain['name']]['count'] += 1
+        elements[domain['name']]['length'] += (domain['end'] - domain['start'] + 1)
 
-          if element['name'] not in elements:
-            elements[element['name']] = {
-              'count': 0,
-              'length': 0,
-              'type': element['type'],
-            }
-          elements[element['name']]['count'] += 1
-          elements[element['name']]['length'] += (element['end'] - element['start'] + 1)
+      domains_by_id[id] = elements
 
-        for uniprotID in entry['uniprot']:
-          sequence_elements_by_accession[uniprotID] = elements
+  return domains_by_id, ids_by_domain
 
-  return sequence_elements_by_accession, sequence_elements
-
-def count_elements_by_bait(saint, sequence_elements):
-  elements_by_bait = {}
+def count_domains_by_bait(saint, domains_by_id):
+  domains_by_bait = {}
 
   baits = list(saint.Bait.unique())
   preyLookup = pd.Series(saint.PreyGene.values, index=saint.Prey).to_dict()
 
   for bait in baits:
-    elements_by_bait[bait] = {
+    domains_by_bait[bait] = {
       'preysInDatabase': 0,
       'domain': {},
-      'region': {},
     }
 
-    accessions = list(saint.Prey[saint.Bait == bait])
-    for accession in accessions:
-      if accession and accession in sequence_elements:
-        elements_by_bait[bait]['preysInDatabase'] += 1
+    prey_ids = list(saint.Prey[saint.Bait == bait])
+    for prey_id in prey_ids:
+      if prey_id and prey_id in domains_by_id:
+        domains_by_bait[bait]['preysInDatabase'] += 1
 
-        for element, element_data in sequence_elements[accession].items():
-          element_type = element_data['type']
-
-          if element not in elements_by_bait[bait][element_type]:
-            elements_by_bait[bait][element_type][element] = {
+        for domain, domain_data in domains_by_id[prey_id].items():
+          if domain not in domains_by_bait[bait]['domain']:
+            domains_by_bait[bait]['domain'][domain] = {
               'countByAccession': [],
               'lengthByAccession': [],
               'preys': [],
             }
 
-          elements_by_bait[bait][element_type][element]['countByAccession'].append(element_data['count'])
-          elements_by_bait[bait][element_type][element]['lengthByAccession'].append(element_data['length'])
-          elements_by_bait[bait][element_type][element]['preys'].append(preyLookup[accession])
+          domains_by_bait[bait]['domain'][domain]['countByAccession'].append(domain_data['count'])
+          domains_by_bait[bait]['domain'][domain]['lengthByAccession'].append(domain_data['length'])
+          domains_by_bait[bait]['domain'][domain]['preys'].append(preyLookup[prey_id])
 
-  return elements_by_bait
+  return domains_by_bait
 
-def calculate_enrichment(elements_by_bait, sequence_elements, background_size, fdr):
-  enriched_elements_by_bait = {}
+def calculate_enrichment(domains_by_bait, ids_by_domain, background_size, fdr):
+  enriched_domains_by_bait = {}
 
-  def perform_element_type_enrichment(bait_data, element_type):
+  def perform_domain_enrichment(bait_data, preys_in_database):
+    # sourcery skip: inline-immediately-returned-variable, list-comprehension
     pvalues = {}
     stats = {}
 
-    for element, element_data in bait_data[element_type].items():
-      prey_count = len(element_data['preys'])
-      bait_fold_enrichment = prey_count / bait_data['preysInDatabase']
-      background_size_w_element = len(sequence_elements[element])
-      background_fold_enrichment = background_size_w_element / background_size
+    for domain, domain_data in bait_data.items():
+      prey_count = len(domain_data['preys'])
+      bait_fold_enrichment = prey_count / preys_in_database
+      background_size_w_domain = len(ids_by_domain[domain])
+      background_fold_enrichment = background_size_w_domain / background_size
       fold_enrichment = bait_fold_enrichment / background_fold_enrichment
-  
+
       pvalue = fishers_test(
         prey_count,
-        bait_data['preysInDatabase'],
-        background_size_w_element,
+        preys_in_database,
+        background_size_w_domain,
         background_size,
       )
-      pvalues[element] = pvalue
-      stats[element] = {
-        'background_size_w_element': background_size_w_element,
+      pvalues[domain] = pvalue
+      stats[domain] = {
+        'background_size_w_domain': background_size_w_domain,
         'fold_enrichment': fold_enrichment,
         'pvalue': pvalue,
       }
 
     adj_pvalues, corrected_fdr = bh_correction(pvalues, fdr)
 
-    enriched_elements = []
-    for element, adj_pvalue in sort_dict_by_value(adj_pvalues).items():
-      if adj_pvalue == 0 or adj_pvalue < corrected_fdr[element]:
-        enriched_elements.append({
-          'element': element,
-          'no_genes_with_element': len(bait_data[element_type][element]['preys']),
-          'no_genes': bait_data['preysInDatabase'],
-          'background_size_w_element': stats[element]['background_size_w_element'],
+    enriched_domains = []
+    for domain, adj_pvalue in sort_dict_by_value(adj_pvalues).items():
+      if adj_pvalue == 0 or adj_pvalue < corrected_fdr[domain]:
+        enriched_domains.append({
+          'domain': domain,
+          'no_genes_with_domain': len(bait_data[domain]['preys']),
+          'no_genes': preys_in_database,
+          'background_size_w_domain': stats[domain]['background_size_w_domain'],
           'background_size': background_size,
-          'fold_enrichment': stats[element]['fold_enrichment'],
-          'pvalue': stats[element]['pvalue'],
+          'fold_enrichment': stats[domain]['fold_enrichment'],
+          'pvalue': stats[domain]['pvalue'],
           'adj_pvalue': adj_pvalue,
-          'bh_fdr': corrected_fdr[element],
-          'genes': bait_data[element_type][element]['preys'],
+          'bh_fdr': corrected_fdr[domain],
+          'genes': bait_data[domain]['preys'],
         })
-    return enriched_elements
+    
+    return enriched_domains
 
-  for bait, bait_data in elements_by_bait.items():
-    enriched_elements_by_bait[bait] = {
-      'domain': perform_element_type_enrichment(bait_data, 'domain'),
-      'region': perform_element_type_enrichment(bait_data, 'region'),
-    }
+  for bait, bait_data in domains_by_bait.items():
+    enriched_domains_by_bait[bait] = perform_domain_enrichment(bait_data['domain'], bait_data['preysInDatabase'])
 
-  return enriched_elements_by_bait
+  return enriched_domains_by_bait
 
 def sort_dict_by_value(dict):
   return {k: v for k, v in sorted(dict.items(), key=lambda item: item[1])}
@@ -203,8 +223,7 @@ def bh_correction(pvalues, fdr):
     pvalue = sorted_pvalues[key]
 
     adj_pvalue = pvalue * no_tests / ranks[key]
-    if adj_pvalue > 1:
-      adj_pvalue = 1
+    adj_pvalue = min(adj_pvalue, 1)
     if last_adjusted < adj_pvalue:
       adj_pvalue = last_adjusted
     last_adjusted = adj_pvalue
@@ -213,30 +232,26 @@ def bh_correction(pvalues, fdr):
 
   return adjusted_pvalues, corrected_fdr
 
-def write_enriched_elements(enriched_elements, saintfile, top_preys):
+def write_enriched_domains(options, enriched_domains_by_bait):
+  saintfile = options.saint
+  top_preys = options.top_preys
+
   basename = os.path.basename(saintfile)
   filename = os.path.splitext(basename)[0]
 
-  outfile = f'data/processed/dr-enrichment-{filename}.xlsx'
+  outfile = f'data/processed/domain-enrichment-{filename}.xlsx'
   if top_preys > 0:
-    outfile = f'data/processed/dr-enrichment-top{top_preys}-{filename}.xlsx'
+    outfile = f'data/processed/domain-enrichment-top{top_preys}-{filename}.xlsx'
 
   domains = []
-  regions = []
 
-  for bait, bait_data in enriched_elements.items():
-    for domain in bait_data['domain']:
+  for bait, bait_data in enriched_domains_by_bait.items():
+    for domain in bait_data:
       domains.append({
         'bait': bait,
         **domain,
-      })
-    for region in bait_data['region']:
-      regions.append({
-        'bait': bait,
-        **region,
       })
 
   # pylint: disable=abstract-class-instantiated
   with pd.ExcelWriter(outfile) as writer:
     pd.DataFrame(domains).to_excel(writer, index=False, sheet_name='domains')
-    pd.DataFrame(regions).to_excel(writer, index=False, sheet_name='regions')
