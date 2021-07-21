@@ -188,9 +188,9 @@ class MapFileIds(pyfakefs.fake_filesystem_unittest.TestCase):
 
   def test(self):
     df = pd.DataFrame([
-      { 'Bait': 'AAA', 'Prey': 'NP_11111', 'PreyGene': 'prey1', 'AvgSpec': 10, 'BFDR': 0.01 },
+      { 'Bait': 'AAA', 'Prey': 'NP_11111.1', 'PreyGene': 'prey1', 'AvgSpec': 10, 'BFDR': 0.01 },
       { 'Bait': 'AAA', 'Prey': 'NP_22222', 'PreyGene': 'prey2', 'AvgSpec': 20, 'BFDR': 0 },
-      { 'Bait': 'AAA', 'Prey': 'NP_33333', 'PreyGene': 'prey3', 'AvgSpec': 30, 'BFDR': 0.02 },
+      { 'Bait': 'AAA', 'Prey': 'NP_33333.3', 'PreyGene': 'prey3', 'AvgSpec': 30, 'BFDR': 0.02 },
       { 'Bait': 'AAA', 'Prey': 'NP_44444', 'PreyGene': 'prey4', 'AvgSpec': 15, 'BFDR': 0.01 },
       { 'Bait': 'AAA', 'Prey': 'NP_55555', 'PreyGene': 'prey5', 'AvgSpec': 25, 'BFDR': 0.01 },
       { 'Bait': 'AAA', 'Prey': 'NP_66666', 'PreyGene': 'prey6', 'AvgSpec': 40, 'BFDR': 0.01 },

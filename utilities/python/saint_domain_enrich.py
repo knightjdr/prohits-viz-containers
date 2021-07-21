@@ -5,6 +5,7 @@ from saint_domain_enrich.enrich import enrich
 Usage:
 
 python3 saint_domain_enrich.py \
+-b all
 -d domains.json \
 -f 0.01 \
 -g genemap.json \

@@ -16,7 +16,7 @@ def enrich(options):
 
   domains_by_id, ids_by_domain = parse_domains(domains, background)
   domains_by_bait = count_domains_by_bait(filtered_saint, domains_by_id)
-  enriched_domains_by_bait = calculate_enrichment(domains_by_bait, ids_by_domain, len(background), options.fdr_enrichment)
+  enriched_domains_by_bait = calculate_enrichment(domains_by_bait, ids_by_domain, len(background), options.fdr)
 
   write_enriched_domains(options, enriched_domains_by_bait)
 
@@ -52,6 +52,7 @@ def read_saint(saintfile):
 
 def map_file_ids(saint, genemap):
   mapped = saint
+  mapped.Prey = mapped.Prey.str.split('.').str[0]
   mapped.Prey = mapped.Prey.map(genemap).fillna(mapped.Prey)
   return mapped
 
@@ -239,9 +240,9 @@ def write_enriched_domains(options, enriched_domains_by_bait):
   basename = os.path.basename(saintfile)
   filename = os.path.splitext(basename)[0]
 
-  outfile = f'data/processed/domain-enrichment-{filename}.xlsx'
+  outfile = f'domain-enrichment-{filename}.xlsx'
   if top_preys > 0:
-    outfile = f'data/processed/domain-enrichment-top{top_preys}-{filename}.xlsx'
+    outfile = f'domain-enrichment-top{top_preys}-{filename}.xlsx'
 
   domains = []
 
