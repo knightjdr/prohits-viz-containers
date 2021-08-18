@@ -3,7 +3,7 @@ import pandas.testing as pd_testing
 import pyfakefs.fake_filesystem_unittest
 import unittest
 
-from .enrich import (
+from .main import (
   create_query_lists,
   read_saint,
 )

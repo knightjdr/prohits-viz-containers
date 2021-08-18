@@ -45,6 +45,6 @@ docker build -t pvutilitiespython -f utilities/python/Dockerfile .
 
 #### Scripts
 
-* saint summary statistics: `docker run -v $(pwd):/files/ pvutilitiespython /app/saint_stats.py -f 0.01 -s saint.txt`
-* saint functional enrichment analysis: `docker run -v $(pwd):/files/ pvutilitiespython /app/saint_fea.py -f 0.01 -s saint.txt`
-* saint domain enrichment analysis: `docker run -v $(pwd):/files/ pvutilitiespython /app/saint_domain_enrich.py -b all -d domains.json -f 0.01 -g gene-db.json -i refseqp -s saint.txt`
+* saint summary statistics: `docker run -v $(pwd):/files/ --user $(id -u):$(id -g) pvutilitiespython /app/saint_stats/main.py -f 0.01 -s saint.txt`
+* saint functional enrichment analysis: `docker run -v $(pwd):/files/ --user $(id -u):$(id -g) pvutilitiespython /app/saint_fea/main.py -f 0.01 -s saint.txt`
+* saint domain enrichment analysis: `docker run -v $(pwd):/files/ --user $(id -u):$(id -g) pvutilitiespython /app/saint_domain_enrich/main.py -b all -d domains.json -f 0.01 -g gene-db.json -i refseqp -s saint.txt`

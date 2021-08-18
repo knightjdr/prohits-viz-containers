@@ -1,9 +1,39 @@
+import argparse
 import csv
 import statistics
 
-def summarize(options):
+'''
+Usage:
+
+python3 main.py \
+-f 0.01 \
+-s saint.txt
+
+output: saint-statistics.txt
+'''
+
+def summarize():
+  options = parse_args()
   summary = read_saint(options.saint, options.fdr)
   write_summary(summary, options.saint)
+
+def parse_args():
+  parser = argparse.ArgumentParser(description='Calculate interaction stats for SAINT file')
+
+  parser.add_argument(
+    '--fdr', '-f',
+    default=0.01,
+    help='FDR for significant preys (default: %(default).2f)',
+    type=float,
+  )
+  parser.add_argument(
+    '--saint', '-s',
+    default='',
+    help='SAINT file to process',
+    required=True,
+  )
+
+  return parser.parse_args()
 
 def read_saint(filename, cutoff):
   summary = {
@@ -83,3 +113,6 @@ def get_min_prey_number(summary):
 def get_median_prey_number(summary):
   prey_counts = [total for _, total in summary['interactions']['bait'].items()]
   return statistics.median(prey_counts)
+
+if __name__ == "__main__":
+  summarize()

@@ -1,7 +1,7 @@
 import pyfakefs.fake_filesystem_unittest
 import unittest
 
-from .summarize import read_saint, write_summary
+from .main import read_saint, write_summary
 
 class ReadSaint(pyfakefs.fake_filesystem_unittest.TestCase):
   def setUp(self):

@@ -1,14 +1,52 @@
+import argparse
 import csv
 import os
 import pandas as pd
 from gprofiler import GProfiler
 from pathlib import Path
 
-def enrich(options):
+'''
+Usage:
+
+python3 main.py \
+-f 0.01 \
+-s saint.txt \
+-t 0
+
+output: enrichment-saint.xlsx
+'''
+
+def enrich():
+  options = parse_args()
   saint = read_saint(options)
   query, accessions_to_symbol = create_query_lists(saint)
   enrichment = gProfile(query, accessions_to_symbol)
   write_enrichment(enrichment, options.saint, options.top_preys)
+
+def parse_args():
+  parser = argparse.ArgumentParser(description='Perform GO enrichment')
+
+  parser.add_argument(
+    '--fdr', '-f',
+    default=0.01,
+    help='FDR for significant preys (default: %(default).2f)',
+    type=float,
+  )
+  parser.add_argument(
+    '--saint', '-s',
+    default='',
+    help='SAINT file to process',
+    required=True,
+  )
+  parser.add_argument(
+    '--top_preys', '-t',
+    default=0,
+    help='Only use top preys for enrichment (default: %(default)d)',
+    type=int,
+  )
+
+  return parser.parse_args()
+
 
 def read_saint(options):
   fdr = options.fdr
@@ -95,3 +133,6 @@ def write_enrichment(df, saintfile, top_preys):
     MF.to_excel(writer, index=False, sheet_name='MF')
     CORUM.to_excel(writer, index=False, sheet_name='Corum')
     REAC.to_excel(writer, index=False, sheet_name='Reactome')
+
+if __name__ == "__main__":
+  enrich()
