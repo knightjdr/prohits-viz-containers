@@ -99,7 +99,8 @@ def read_gene_map(options):
     genemap[ids[idtype]] = value
   
   parse_ids = parse_list_ids
-  if idtype == 'entrez':
+  string_id_types = ['ensemblg', 'entrez', 'symbol']
+  if idtype in string_id_types:
     parse_ids = parse_string_id
 
   with open(genemapfile) as json_data:
