@@ -4,11 +4,15 @@ import pandas as pd
 import re
 import requests
 
+from distutils.util import strtobool
+
 '''
 Usage:
 
 python3 main.py \
--f file.txt
+-f file.txt \
+-g genemap.json \k
+-k $access_key
 
 output: interactions.txt
 '''
@@ -23,16 +27,11 @@ def get_interactions():
   post_data = create_post_data(options, mapped_ids.keys())
   biogrid_data = fetch_interactions(post_data)
   write_biogrid_data(biogrid_data)
-  """ with open('./temp.json') as f:
-    biogrid_data = json.load(f) """
 
   interactions = extract_interaction_pairs(biogrid_data, mapped_ids.keys())
   interactions = merge_input_interactions(interactions, mapped_interactions)
-  interactions = consolidate_symbols(options.identifier_type, interactions, mapped_ids, mapped_interactions)
+  interactions = consolidate_symbols(options.id_type, interactions, mapped_ids, mapped_interactions)
   write_interactions(interactions, mapped_ids, options)
-
-  # with open('./testfiles/temp.json', 'w', encoding='utf-8') as f:
-  #   json.dump(known_interactions, f, ensure_ascii=False, indent=4)
 
 def parse_args():
   parser = argparse.ArgumentParser(description='Create a list of interactions retrieved from BioGRID from an input list')
@@ -50,7 +49,7 @@ def parse_args():
       'include_evidence is set to true.',
   )
   parser.add_argument(
-    '--fdr',
+    '-fdr',
     default=0.01,
     help='FDR for filtering interactions from SAINT. Only used if both is_saint and '
     'include_saint_interactions are true',
@@ -62,16 +61,16 @@ def parse_args():
     required=True,
   )
   parser.add_argument(
-    '--identifier_type', '-it',
+    '--id_type', '-it',
     default='symbol',
-    help='Pipe-separated list of identifier types specified in the input file.',
+    help='Identifier type used in the input file.',
   )
   parser.add_argument(
     '--include_evidence', '-ie',
     default=True,
     help='If set to true, any interaction evidence with its Experimental System in '
       'the evidence_list will be included in the result',
-    type=bool
+    type=lambda x: bool(strtobool(str(x)))
   )
   parser.add_argument(
     '--include_primary_interactions', '-ipi',
@@ -79,33 +78,33 @@ def parse_args():
     help='If true, in addition to interactions between genes on the gene_list, '
       ' interactions will also be fetched which have only one interactor on the '
       'gene_list i.e. the gene_list’s first order interactors will be included',
-    type=bool
+    type=lambda x: bool(strtobool(str(x)))
   )
   parser.add_argument(
     '--include_secondary_interactions', '-isi',
     default=False,
     help='If true interactions between the gene_list’s first order interactors '
       ' will be included. Ignored if include_interactors is false.',
-    type=bool
+    type=lambda x: bool(strtobool(str(x)))
   )
   parser.add_argument(
     '--include_saint_interactions', '-isai',
     default=True,
     help='If the input file is a SAINT file (is_saint is true), then include SAINT '
     'interactions in the output.',
-    type=bool
+    type=lambda x: bool(strtobool(str(x)))
   )
   parser.add_argument(
     '--inter_species_excluded', '-ise',
     default=False,
     help='If true, interactions with interactors from different species will be excluded.',
-    type=bool
+    type=lambda x: bool(strtobool(str(x)))
   )
   parser.add_argument(
     '--is_saint', '-is',
     default=False,
     help='Is the input file a SAINT formatted file.',
-    type=bool
+    type=lambda x: bool(strtobool(str(x)))
   )
   parser.add_argument(
     '--genemap', '-g',
@@ -123,7 +122,7 @@ def parse_args():
     '--self_interactions_excluded', '-sie',
     default=True,
     help='If true, interactions with one interactor will be excluded.',
-    type=bool
+    type=lambda x: bool(strtobool(str(x)))
   )
   parser.add_argument(
     '--tax_id', '-ti',
@@ -181,7 +180,7 @@ def read_id_map(options):
   '''
 
   genemapfile = options.genemap
-  idtype = options.identifier_type
+  idtype = options.id_type
 
   with open(genemapfile) as json_data:
     data = json.load(json_data)
@@ -391,7 +390,7 @@ def write_interactions(interactions, input_ids, options):
   '''
   Write interactions as a tsv file.
   '''
-  id_type = options.identifier_type
+  id_type = options.id_type
   include_saint_interactions = options.include_saint_interactions
   is_saint = options.is_saint
 

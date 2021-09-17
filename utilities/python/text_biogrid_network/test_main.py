@@ -157,7 +157,7 @@ class ReadIdMap(pyfakefs.fake_filesystem_unittest.TestCase):
 
     class Options:
       genemap = filepath
-      identifier_type = arg_idtype
+      id_type = arg_idtype
 
     return Options()
 
@@ -587,7 +587,7 @@ class WriteInteractions(pyfakefs.fake_filesystem_unittest.TestCase):
       },
     }
     class Options:
-      identifier_type = 'symbol'
+      id_type = 'symbol'
       include_saint_interactions = True
       is_saint = True
     options = Options()
@@ -631,7 +631,7 @@ class WriteInteractions(pyfakefs.fake_filesystem_unittest.TestCase):
       },
     }
     class Options:
-      identifier_type = 'symbol'
+      id_type = 'symbol'
       include_saint_interactions = False
       is_saint = False
     options = Options()
@@ -675,7 +675,7 @@ class WriteInteractions(pyfakefs.fake_filesystem_unittest.TestCase):
       },
     }
     class Options:
-      identifier_type = 'refseqp'
+      id_type = 'refseqp'
       include_saint_interactions = False
       is_saint = False
     options = Options()
