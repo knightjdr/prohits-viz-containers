@@ -168,6 +168,7 @@ def read_identifiers(options):
     with open(file, 'r') as f:
       text = f.read()
       genes = re.compile('[\s,]+').split(text.strip())
+      genes = sorted(list(set(genes)))
 
   return genes, interactions
 

@@ -28,6 +28,7 @@ class ReadIdentifiers(pyfakefs.fake_filesystem_unittest.TestCase):
       'AAA\n'
       'BBB CCC   DDD\n'
       'EEE,FFF  GGG\n'
+      'AAA,BBB\n'
     )
     filepath = '/test/file.txt'
     self.fs.create_file(filepath, contents=file_contents)
