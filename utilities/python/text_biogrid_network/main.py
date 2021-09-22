@@ -11,10 +11,10 @@ Usage:
 
 python3 main.py \
 -f file.txt \
--g genemap.json \k
+-g genemap.json \
 -k $access_key
 
-output: interactions.txt
+output: biogrid-interactions.txt and cytoscape.txt
 '''
 
 def get_interactions():

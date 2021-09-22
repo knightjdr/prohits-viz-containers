@@ -1,5 +1,6 @@
+openpyxl==3.0.7
 pyfakefs==4.5.0
+requests==2.22.0
+scipy==1.7.0
 pandas==1.2.5
 gprofiler_official==1.0.0
-openpyxl==3.0.7
-scipy==1.7.0

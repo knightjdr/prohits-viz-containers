@@ -33,7 +33,7 @@ docker run -v $(pwd):/files/ rsvg --format=png --output=./image.png --background
 
 #### Docker
 
-1. Generate `requirements.txt` file. Manually add `openpyxl==3.0.7`
+1. Generate `requirements.txt` file.
 ```
 pipreqs utilities/python
 ```
@@ -50,3 +50,4 @@ docker build -t pvutilitiespython -f utilities/python/Dockerfile .
 * saint functional enrichment analysis: `docker run -v $(pwd):/files/ --user $(id -u):$(id -g) pvutilitiespython /app/saint_fea/main.py -f 0.01 -s saint.txt`
 * saint domain enrichment analysis: `docker run -v $(pwd):/files/ --user $(id -u):$(id -g) pvutilitiespython /app/saint_domain_enrich/main.py -b all -d domains.json -f 0.01 -g gene-db.json -i refseqp -s saint.txt`
 * text biogrid network: `docker run -v $(pwd):/files/ --user $(id -u):$(id -g) pvutilitiespython /app/text_biogrid_network/main.py -k $access_key -f file.txt -g gene-db.json`
+* text symbol fix: `docker run -v $(pwd):/files/ --user $(id -u):$(id -g) pvutilitiespython /app/text_symbol_fix/main.py -f file.txt -c "column1|column2"`
