@@ -114,7 +114,7 @@ class ReadIdMap(pyfakefs.fake_filesystem_unittest.TestCase):
       '"1": {\n'
       '"aliasSymbol": ["aaa"],\n'
       '"ensemblg": "ENSG00000000111",\n'
-      '"entrez": "11",\n'
+      '"entrez": "111",\n'
       '"refseqp": ["NP_11111"],\n'
       '"prevSymbol": ["aa" ,"a1"],\n'
       '"symbol": "AAA"\n'
@@ -122,7 +122,7 @@ class ReadIdMap(pyfakefs.fake_filesystem_unittest.TestCase):
       '"2": {\n'
       '"aliasSymbol": ["AAA"],\n'
       '"ensemblg": "ENSG00000000222",\n'
-      '"entrez": "22",\n'
+      '"entrez": "222",\n'
       '"refseqp": ["NP_22222", "NP_02222"],\n'
       '"prevSymbol": ["bb"],\n'
       '"symbol": "BBB"\n'
@@ -130,7 +130,7 @@ class ReadIdMap(pyfakefs.fake_filesystem_unittest.TestCase):
       '"3": {\n'
       '"aliasSymbol": ["aa"],\n'
       '"ensemblg": "ENSG00000000333",\n'
-      '"entrez": "33",\n'
+      '"entrez": "333",\n'
       '"refseqp": ["NP_33333"],\n'
       '"prevSymbol": [],\n'
       '"symbol": "CCC"\n'
@@ -138,7 +138,7 @@ class ReadIdMap(pyfakefs.fake_filesystem_unittest.TestCase):
       '"5": {\n'
       '"aliasSymbol": [],\n'
       '"ensemblg": "ENSG00000000555",\n'
-      '"entrez": "55",\n'
+      '"entrez": "555",\n'
       '"refseqp": ["NP_55555"],\n'
       '"prevSymbol": ["ee"],\n'
       '"symbol": "EEE"\n'
@@ -146,7 +146,7 @@ class ReadIdMap(pyfakefs.fake_filesystem_unittest.TestCase):
       '"6": {\n'
       '"aliasSymbol": [],\n'
       '"ensemblg": "ENSG00000000666",\n'
-      '"entrez": "66",\n'
+      '"entrez": "666",\n'
       '"refseqp": ["NP_66666"],\n'
       '"prevSymbol": [],\n'
       '"symbol": "FFF"\n'
@@ -165,12 +165,12 @@ class ReadIdMap(pyfakefs.fake_filesystem_unittest.TestCase):
   def test_list_ids(self):
     options = self.get_test_options('refseqp')
     expected = {
-      'NP_11111': '11',
-      'NP_22222': '22',
-      'NP_02222': '22',
-      'NP_33333': '33',
-      'NP_55555': '55',
-      'NP_66666': '66',
+      'NP_11111': '111',
+      'NP_22222': '222',
+      'NP_02222': '222',
+      'NP_33333': '333',
+      'NP_55555': '555',
+      'NP_66666': '666',
     }
 
     self.assertEqual(read_id_map(options), expected)
@@ -178,11 +178,11 @@ class ReadIdMap(pyfakefs.fake_filesystem_unittest.TestCase):
   def test_string_id(self):
     options = self.get_test_options('ensemblg')
     expected = {
-      'ENSG00000000111': '11',
-      'ENSG00000000222': '22',
-      'ENSG00000000333': '33',
-      'ENSG00000000555': '55',
-      'ENSG00000000666': '66',
+      'ENSG00000000111': '111',
+      'ENSG00000000222': '222',
+      'ENSG00000000333': '333',
+      'ENSG00000000555': '555',
+      'ENSG00000000666': '666',
     }
 
     self.assertEqual(read_id_map(options), expected)
@@ -190,16 +190,16 @@ class ReadIdMap(pyfakefs.fake_filesystem_unittest.TestCase):
   def test_symbols(self):
     options = self.get_test_options('symbol')
     expected = {
-      'AAA': '11',
-      'BBB': '22',
-      'CCC': '33',
-      'EEE': '55',
-      'FFF': '66',
-      'aaa': '11',
-      'a1': '11',
-      'bb': '22',
-      'aa': '33',
-      'ee': '55',
+      'AAA': '111',
+      'BBB': '222',
+      'CCC': '333',
+      'EEE': '555',
+      'FFF': '666',
+      'aaa': '111',
+      'a1': '111',
+      'bb': '222',
+      'aa': '333',
+      'ee': '555',
     }
 
     self.assertEqual(read_id_map(options), expected)
@@ -208,17 +208,17 @@ class MapIdentifiers(unittest.TestCase):
   def test_id_mapping_only(self):
     ids = ['AAA', 'AAB', 'bbb']
     id_map = {
-      'AAA': '11',
-      'BBB': '22',
-      'CCC': '33',
-      'EEE': '55',
-      'FFF': '66',
+      'AAA': '111',
+      'BBB': '222',
+      'CCC': '333',
+      'EEE': '555',
+      'FFF': '666',
     }
     interactions = {}
 
     expected_mapped_ids = {
-      '11': 'AAA',
-      '22': 'bbb',
+      '111': 'AAA',
+      '222': 'bbb',
     }
     expected_mapped_interactions = {}
 
@@ -229,11 +229,11 @@ class MapIdentifiers(unittest.TestCase):
   def test_id_and_interaction_mapping(self):
     ids = ['AAA', 'AAB', 'bbb']
     id_map = {
-      'AAA': '11',
-      'BBB': '22',
-      'CCC': '33',
-      'EEE': '55',
-      'FFF': '66',
+      'AAA': '111',
+      'BBB': '222',
+      'CCC': '333',
+      'EEE': '555',
+      'FFF': '666',
     }
     interactions = {
       'AAA': ['BBB', 'CCC', 'DDD'],
@@ -242,18 +242,24 @@ class MapIdentifiers(unittest.TestCase):
     }
 
     expected_mapped_ids = {
-      '11': 'AAA',
-      '22': 'bbb',
+      '111': 'AAA',
+      '222': 'bbb',
     }
     expected_mapped_interactions = {
-      ('11', 'AAA'): {
-        '22': { 'symbol': 'BBB' },
-        '33': { 'symbol': 'CCC' },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB' },
+          '333': { 'symbol': 'CCC' },
+        },
       },
-      ('22', 'bbb'): {
-        '11': { 'symbol': 'AAA' },
-        '55': { 'symbol': 'EEE' },
-      }
+      '222': {
+        'symbol': 'bbb',
+        'targets': {
+          '111': { 'symbol': 'AAA' },
+          '555': { 'symbol': 'EEE' },
+        },
+      },
     }
 
     actual_mapped_ids, actiual_mapped_interactions = map_identifiers(ids, interactions, id_map)
@@ -332,18 +338,27 @@ class ExtractInterationPair(unittest.TestCase):
     ]
 
     expected = {
-      ('111', 'AAA'): {
-        '222': { 'symbol': 'BBB' },
-        '333': { 'symbol': 'CCC' },
-        '555': { 'symbol': 'EEE' },
-        '666': { 'symbol': 'FFF' },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB' },
+          '333': { 'symbol': 'CCC' },
+          '555': { 'symbol': 'EEE' },
+          '666': { 'symbol': 'FFF' },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'AAA' },
-        '555': { 'symbol': 'EEE' },
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'AAA' },
+          '555': { 'symbol': 'EEE' },
+        },
       },
-      ('555', 'EEE'): {
-        '666': { 'symbol': 'FFF' },
+      '555': {
+        'symbol': 'EEE',
+        'targets': {
+          '666': { 'symbol': 'FFF' },
+        },
       },
     }
 
@@ -353,82 +368,125 @@ class MergeInputInteractions(unittest.TestCase):
   def test_no_input_interactions(self):
     input_interactions = {}
     interactions = {
-      ('111', 'AAA'): {
-        '222': { 'symbol': 'BBB' },
-        '333': { 'symbol': 'CCC' },
-        '555': { 'symbol': 'EEE' },
-        '666': { 'symbol': 'FFF' },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB' },
+          '333': { 'symbol': 'CCC' },
+          '555': { 'symbol': 'EEE' },
+          '666': { 'symbol': 'FFF' },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'AAA' },
-        '555': { 'symbol': 'EEE' },
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'AAA' },
+          '555': { 'symbol': 'EEE' },
+        },
       },
-      ('555', 'EEE'): {
-        '666': { 'symbol': 'FFF' },
+      '555': {
+        'symbol': 'EEE',
+        'targets': {
+          '666': { 'symbol': 'FFF' },
+        },
       },
     }
 
     expected = {
-      ('111', 'AAA'): {
-        '222': { 'symbol': 'BBB', 'known': True, 'isprey': False },
-        '333': { 'symbol': 'CCC', 'known': True, 'isprey': False },
-        '555': { 'symbol': 'EEE', 'known': True, 'isprey': False },
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': False },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB', 'isprey': False, 'known': True },
+          '333': { 'symbol': 'CCC', 'isprey': False, 'known': True },
+          '555': { 'symbol': 'EEE', 'isprey': False, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': True },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'AAA', 'known': True, 'isprey': False },
-        '555': { 'symbol': 'EEE', 'known': True, 'isprey': False },
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'AAA', 'isprey': False, 'known': True },
+          '555': { 'symbol': 'EEE', 'isprey': False, 'known': True },
+        },
       },
-      ('555', 'EEE'): {
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': False },
+      '555': {
+        'symbol': 'EEE',
+        'targets': {
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': True },
+        },
       },
     }
     self.assertEqual(merge_input_interactions(interactions, input_interactions), expected)
 
   def test_with_input_interactions(self):
     input_interactions = {
-      ('111', 'AAA'): {
-        '555': { 'symbol': 'ee' },
-        '666': { 'symbol': 'FFF' },
+      '111': {
+        'symbol': 'aaa',
+        'targets': {
+          '555': { 'symbol': 'ee' },
+          '666': { 'symbol': 'FFF' },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'aa' },
-        '666': { 'symbol': 'FFF' },
-      }
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'aa' },
+          '666': { 'symbol': 'FFF' },
+        },
+      },
     }
     interactions = {
-      ('111', 'AAA'): {
-        '222': { 'symbol': 'BBB' },
-        '333': { 'symbol': 'CCC' },
-        '555': { 'symbol': 'EEE' },
-        '666': { 'symbol': 'FFF' },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB' },
+          '333': { 'symbol': 'CCC' },
+          '555': { 'symbol': 'EEE' },
+          '666': { 'symbol': 'FFF' },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'AAA' },
-        '555': { 'symbol': 'EEE' },
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'AAA' },
+          '555': { 'symbol': 'EEE' },
+        },
       },
-      ('555', 'EEE'): {
-        '666': { 'symbol': 'FFF' },
+      '555': {
+        'symbol': 'EEE',
+        'targets': {
+          '666': { 'symbol': 'FFF' },
+        },
       },
     }
 
     expected = {
-      ('111', 'AAA'): {
-        '222': { 'symbol': 'BBB', 'known': True, 'isprey': False },
-        '333': { 'symbol': 'CCC', 'known': True, 'isprey': False },
-        '555': { 'symbol': 'ee', 'known': True, 'isprey': True, },
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': True, },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB', 'isprey': False, 'known': True },
+          '333': { 'symbol': 'CCC', 'isprey': False, 'known': True },
+          '555': { 'symbol': 'ee', 'isprey': True, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': True },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'aa', 'known': True, 'isprey': True, },
-        '555': { 'symbol': 'EEE', 'known': True, 'isprey': False },
-        '666': { 'symbol': 'FFF', 'known': False, 'isprey': True, },
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'aa', 'isprey': True, 'known': True },
+          '555': { 'symbol': 'EEE', 'isprey': False, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': False },
+        },
       },
-      ('555', 'EEE'): {
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': False },
+      '555': {
+        'symbol': 'EEE',
+        'targets': {
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': True },
+        },
       },
     }
     self.assertEqual(merge_input_interactions(interactions, input_interactions), expected)
+
 
 class ConsolidateTargetSymbols(unittest.TestCase):
   def test_no_input_interactions(self):
@@ -439,34 +497,54 @@ class ConsolidateTargetSymbols(unittest.TestCase):
     }
     input_interactions = {}
     interactions = {
-      ('111', 'AAA'): {
-        '222': { 'symbol': 'BBB', 'known': True, 'isprey': False },
-        '333': { 'symbol': 'CCC', 'known': True, 'isprey': False },
-        '555': { 'symbol': 'ee', 'known': True, 'isprey': False },
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': False },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB', 'isprey': False, 'known': True },
+          '333': { 'symbol': 'CCC', 'isprey': False, 'known': True },
+          '555': { 'symbol': 'ee', 'isprey': True, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': True },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'aa', 'known': True, 'isprey': False },
-        '555': { 'symbol': 'EEE', 'known': True, 'isprey': False },
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'aa', 'isprey': True, 'known': True },
+          '555': { 'symbol': 'EEE', 'isprey': False, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': False },
+        },
       },
-      ('555', 'EEE'): {
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': False },
+      '555': {
+        'symbol': 'EEE',
+        'targets': {
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': True },
+        },
       },
     }
 
     expected = {
-      ('111', 'AAA'): {
-        '222': { 'symbol': 'BBB', 'known': True, 'isprey': False },
-        '333': { 'symbol': 'CCC', 'known': True, 'isprey': False },
-        '555': { 'symbol': 'ee', 'known': True, 'isprey': False },
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': False },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB', 'isprey': False, 'known': True },
+          '333': { 'symbol': 'CCC', 'isprey': False, 'known': True },
+          '555': { 'symbol': 'ee', 'isprey': True, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': True },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'AAA', 'known': True, 'isprey': False },
-        '555': { 'symbol': 'EEE', 'known': True, 'isprey': False },
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'AAA', 'isprey': True, 'known': True },
+          '555': { 'symbol': 'EEE', 'isprey': False, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': False },
+        },
       },
-      ('555', 'EEE'): {
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': False },
+      '555': {
+        'symbol': 'EEE',
+        'targets': {
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': True },
+        },
       },
     }
     self.assertEqual(consolidate_symbols(id_type, interactions, input_ids, input_interactions), expected)
@@ -478,46 +556,70 @@ class ConsolidateTargetSymbols(unittest.TestCase):
       '222': 'BBB',
     }
     input_interactions = {
-      ('111', 'AAA'): {
-        '555': { 'symbol': 'ee' },
-        '666': { 'symbol': 'FFF' },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '555': { 'symbol': 'ee' },
+          '666': { 'symbol': 'FFF' },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'aa' },
-        '666': { 'symbol': 'FFF' },
-      }
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'aa' },
+          '666': { 'symbol': 'FFF' },
+        },
+      },
     }
     interactions = {
-      ('111', 'AAA'): {
-        '222': { 'symbol': 'BBB', 'known': True, 'isprey': False },
-        '333': { 'symbol': 'CCC', 'known': True, 'isprey': False },
-        '555': { 'symbol': 'ee', 'known': True, 'isprey': True, },
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': True, },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB', 'isprey': False, 'known': True },
+          '333': { 'symbol': 'CCC', 'isprey': False, 'known': True },
+          '555': { 'symbol': 'ee', 'isprey': True, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': True },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'aa', 'known': True, 'isprey': True, },
-        '555': { 'symbol': 'EEE', 'known': True, 'isprey': False },
-        '666': { 'symbol': 'FFF', 'known': False, 'isprey': True, },
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'aa', 'isprey': True, 'known': True },
+          '555': { 'symbol': 'EEE', 'isprey': False, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': False },
+        },
       },
-      ('555', 'EEE'): {
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': False },
+      '555': {
+        'symbol': 'EEE',
+        'targets': {
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': True },
+        },
       },
     }
 
     expected = {
-      ('111', 'AAA'): {
-        '222': { 'symbol': 'BBB', 'known': True, 'isprey': False },
-        '333': { 'symbol': 'CCC', 'known': True, 'isprey': False },
-        '555': { 'symbol': 'ee', 'known': True, 'isprey': True, },
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': True, },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB', 'isprey': False, 'known': True },
+          '333': { 'symbol': 'CCC', 'isprey': False, 'known': True },
+          '555': { 'symbol': 'ee', 'isprey': True, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': True },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'AAA', 'known': True, 'isprey': True, },
-        '555': { 'symbol': 'ee', 'known': True, 'isprey': False },
-        '666': { 'symbol': 'FFF', 'known': False, 'isprey': True, },
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'AAA', 'isprey': True, 'known': True },
+          '555': { 'symbol': 'ee', 'isprey': False, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': False },
+        },
       },
-      ('555', 'ee'): {
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': False },
+      '555': {
+        'symbol': 'ee',
+        'targets': {
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': True },
+        },
       },
     }
     self.assertEqual(consolidate_symbols(id_type, interactions, input_ids, input_interactions), expected)
@@ -530,34 +632,54 @@ class ConsolidateTargetSymbols(unittest.TestCase):
     }
     input_interactions = {}
     interactions = {
-      ('111', 'AAA'): {
-        '222': { 'symbol': 'BBB', 'known': True, 'isprey': False },
-        '333': { 'symbol': 'CCC', 'known': True, 'isprey': False },
-        '555': { 'symbol': 'ee', 'known': True, 'isprey': False },
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': False },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB', 'isprey': False, 'known': True },
+          '333': { 'symbol': 'CCC', 'isprey': False, 'known': True },
+          '555': { 'symbol': 'ee', 'isprey': True, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': True },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'aa', 'known': True, 'isprey': False },
-        '555': { 'symbol': 'EEE', 'known': True, 'isprey': False },
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'aa', 'isprey': True, 'known': True },
+          '555': { 'symbol': 'EEE', 'isprey': False, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': False },
+        },
       },
-      ('555', 'EEE'): {
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': False },
+      '555': {
+        'symbol': 'EEE',
+        'targets': {
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': True },
+        },
       },
     }
 
     expected = {
-      ('111', 'AAA'): {
-        '222': { 'symbol': 'BBB', 'known': True, 'isprey': False },
-        '333': { 'symbol': 'CCC', 'known': True, 'isprey': False },
-        '555': { 'symbol': 'ee', 'known': True, 'isprey': False },
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': False },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB', 'isprey': False, 'known': True },
+          '333': { 'symbol': 'CCC', 'isprey': False, 'known': True },
+          '555': { 'symbol': 'ee', 'isprey': True, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': True },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'aa', 'known': True, 'isprey': False },
-        '555': { 'symbol': 'EEE', 'known': True, 'isprey': False },
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'aa', 'isprey': True, 'known': True },
+          '555': { 'symbol': 'EEE', 'isprey': False, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': False },
+        },
       },
-      ('555', 'EEE'): {
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': False },
+      '555': {
+        'symbol': 'EEE',
+        'targets': {
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': True },
+        },
       },
     }
     self.assertEqual(consolidate_symbols(id_type, interactions, input_ids, input_interactions), expected)
@@ -572,19 +694,28 @@ class WriteInteractions(pyfakefs.fake_filesystem_unittest.TestCase):
       '222': 'BBB',
     }
     interactions = {
-      ('111', 'AAA'): {
-        '222': { 'symbol': 'BBB', 'known': True, 'isprey': False },
-        '333': { 'symbol': 'CCC', 'known': True, 'isprey': False },
-        '555': { 'symbol': 'ee', 'known': True, 'isprey': True, },
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': True, },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB', 'isprey': False, 'known': True },
+          '333': { 'symbol': 'CCC', 'isprey': False, 'known': True },
+          '555': { 'symbol': 'ee', 'isprey': True, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': True },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'AAA', 'known': True, 'isprey': True, },
-        '555': { 'symbol': 'ee', 'known': True, 'isprey': False },
-        '666': { 'symbol': 'FFF', 'known': False, 'isprey': True, },
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'AAA', 'isprey': True, 'known': True },
+          '555': { 'symbol': 'ee', 'isprey': False, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': True, 'known': False },
+        },
       },
-      ('555', 'ee'): {
-        '666': { 'symbol': 'FFF', 'known': True, 'isprey': False },
+      '555': {
+        'symbol': 'ee',
+        'targets': {
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': True },
+        },
       },
     }
     class Options:
@@ -616,19 +747,28 @@ class WriteInteractions(pyfakefs.fake_filesystem_unittest.TestCase):
       '222': 'BBB',
     }
     interactions = {
-      ('111', 'AAA'): {
-        '222': { 'symbol': 'BBB' },
-        '333': { 'symbol': 'CCC' },
-        '555': { 'symbol': 'ee' },
-        '666': { 'symbol': 'FFF' },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB', 'isprey': False, 'known': True },
+          '333': { 'symbol': 'CCC', 'isprey': False, 'known': True },
+          '555': { 'symbol': 'ee', 'isprey': False, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': True },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'AAA' },
-        '555': { 'symbol': 'ee' },
-        '666': { 'symbol': 'FFF' },
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'AAA', 'isprey': False, 'known': True },
+          '555': { 'symbol': 'ee', 'isprey': False, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': False },
+        },
       },
-      ('555', 'ee'): {
-        '666': { 'symbol': 'FFF' },
+      '555': {
+        'symbol': 'ee',
+        'targets': {
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': True },
+        },
       },
     }
     class Options:
@@ -660,19 +800,28 @@ class WriteInteractions(pyfakefs.fake_filesystem_unittest.TestCase):
       '222': 'NP_22222',
     }
     interactions = {
-      ('111', 'AAA'): {
-        '222': { 'symbol': 'BBB' },
-        '333': { 'symbol': 'CCC' },
-        '555': { 'symbol': 'ee' },
-        '666': { 'symbol': 'FFF' },
+      '111': {
+        'symbol': 'AAA',
+        'targets': {
+          '222': { 'symbol': 'BBB', 'isprey': False, 'known': True },
+          '333': { 'symbol': 'CCC', 'isprey': False, 'known': True },
+          '555': { 'symbol': 'ee', 'isprey': False, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': True },
+        },
       },
-      ('222', 'BBB'): {
-        '111': { 'symbol': 'AAA' },
-        '555': { 'symbol': 'ee' },
-        '666': { 'symbol': 'FFF' },
+      '222': {
+        'symbol': 'BBB',
+        'targets': {
+          '111': { 'symbol': 'AAA', 'isprey': False, 'known': True },
+          '555': { 'symbol': 'ee', 'isprey': False, 'known': True },
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': False },
+        },
       },
-      ('555', 'ee'): {
-        '666': { 'symbol': 'FFF' },
+      '555': {
+        'symbol': 'ee',
+        'targets': {
+          '666': { 'symbol': 'FFF', 'isprey': False, 'known': True },
+        },
       },
     }
     class Options:
@@ -697,4 +846,3 @@ class WriteInteractions(pyfakefs.fake_filesystem_unittest.TestCase):
     with open('./cytoscape.txt', 'r') as f:
       actual = f.read()
     self.assertEqual(actual, expected)
- 

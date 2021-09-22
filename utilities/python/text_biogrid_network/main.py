@@ -256,7 +256,10 @@ def map_identifiers(ids, interactions, id_map):
   mapped_ids = {ci_id_map[id.lower()]: id for id in ids if id.lower() in ci_id_map}
 
   mapped_interactions = {
-      (ci_id_map[source.lower()], source): {ci_id_map[id.lower()]: { 'symbol': id } for id in targets if id.lower() in ci_id_map}
+      ci_id_map[source.lower()]: {
+        'symbol': source,
+        'targets': {ci_id_map[id.lower()]: { 'symbol': id } for id in targets if id.lower() in ci_id_map}
+      }
       for source, targets in interactions.items() if source.lower() in ci_id_map
   }
   return mapped_ids, mapped_interactions
@@ -321,15 +324,14 @@ def extract_interaction_pairs(biogrid_data, ids):
     target_id = datum['ENTREZ_GENE_B']
     target_symbol = datum['OFFICIAL_SYMBOL_B']
     if target_id in ids:
-      source_key = (target_id, target_symbol)
-      target_id = source_id
-      target_symbol = source_symbol
-    else:
-      source_key = (source_id, source_symbol)
-    
-    if source_key not in interactions:
-      interactions[source_key] = {}
-    interactions[source_key][target_id] = { 'symbol': target_symbol }
+      source_id, target_id = target_id, source_id
+      source_symbol, target_symbol = target_symbol, source_symbol
+    if source_id not in interactions:
+      interactions[source_id] = {
+        'symbol': source_symbol,
+        'targets': {},
+      }
+    interactions[source_id]['targets'][target_id] = { 'symbol': target_symbol }
 
   return interactions
 
@@ -339,16 +341,17 @@ def merge_input_interactions(interactions, input_interactions):
   '''
   sources = list(set([*interactions.keys(), *input_interactions.keys()]))
 
-  merged = { source: {} for source in sources}
+  merged = { source: { 'targets': {} } for source in sources}
   for source in sources:
+    merged[source]['symbol'] = interactions[source]['symbol'] if source in interactions else input_interactions[source]['symbol']
     targets = {
-      **interactions.get(source, {}),
-      **input_interactions.get(source, {}),
+      **interactions.get(source, { 'targets': {} })['targets'],
+      **input_interactions.get(source, { 'targets': {} })['targets'],
     }
     for target, target_data in targets.items():
-      merged[source][target] = {
-        'isprey': target in input_interactions.get(source, {}),
-        'known': target in interactions.get(source, {}),
+      merged[source]['targets'][target] = {
+        'isprey': target in input_interactions.get(source, { 'targets': {} })['targets'],
+        'known': target in interactions.get(source, { 'targets': {} })['targets'],
         'symbol': target_data['symbol'],
       }
 
@@ -364,8 +367,8 @@ def consolidate_symbols(id_type, interactions, input_ids, input_interactions):
     return interactions
 
   input_ids_to_symbol = {}
-  for targets in input_interactions.values():
-    id_to_symbol = {id: v['symbol'] for id, v in targets.items()}
+  for source_data in input_interactions.values():
+    id_to_symbol = {id: v['symbol'] for id, v in source_data['targets'].items()}
     input_ids_to_symbol = {
       **input_ids_to_symbol,
       **id_to_symbol,
@@ -375,17 +378,17 @@ def consolidate_symbols(id_type, interactions, input_ids, input_interactions):
     **input_ids,
   }
 
-  consolidated = {}
-  for source, targets in interactions.items():
-    source_key = (source[0], input_ids_to_symbol.get(source[0], source[1]))
-    consolidated[source_key] = {
+  return {
+    source: {
+      'symbol': input_ids_to_symbol.get(source, source_data['symbol']),
+      'targets': {
         target: {
           **target_data,
           'symbol': input_ids_to_symbol.get(target, target_data['symbol'])
         }
-        for target, target_data in targets.items()
-    }
-  return consolidated
+        for target, target_data in source_data['targets'].items()
+      }
+    } for source, source_data in interactions.items()}
 
 def write_interactions(interactions, input_ids, options):
   '''
@@ -398,19 +401,19 @@ def write_interactions(interactions, input_ids, options):
   with open('./cytoscape.txt', 'w') as f:
     if is_saint and include_saint_interactions:
       f.write('source\tsource Entrez\ttarget\ttarget Entrez\tis target a prey\tis target known\n')
-      for source, targets in interactions.items():
-        for target, target_data in targets.items():
-          f.write(f'{source[1]}\t{source[0]}\t{target_data["symbol"]}\t{target}\t{target_data["isprey"]}\t{target_data["known"]}\n')
+      for source, source_data in interactions.items():
+        for target, target_data in source_data['targets'].items():
+          f.write(f'{source_data["symbol"]}\t{source}\t{target_data["symbol"]}\t{target}\t{target_data["isprey"]}\t{target_data["known"]}\n')
     elif id_type == 'symbol':
       f.write('source\tsource Entrez\ttarget\ttarget Entrez\n')
-      for source, targets in interactions.items():
-        for target, target_data in targets.items():
-          f.write(f'{source[1]}\t{source[0]}\t{target_data["symbol"]}\t{target}\n')
+      for source, source_data in interactions.items():
+        for target, target_data in source_data['targets'].items():
+          f.write(f'{source_data["symbol"]}\t{source}\t{target_data["symbol"]}\t{target}\n')
     else:
       f.write('source ID\tsource symbol\tsource Entrez\ttarget symbol\ttarget Entrez\n')
-      for source, targets in interactions.items():
-        for target, target_data in targets.items():
-          f.write(f'{input_ids.get(source[0], "")}\t{source[1]}\t{source[0]}\t{target_data["symbol"]}\t{target}\n')
+      for source, source_data in interactions.items():
+        for target, target_data in source_data['targets'].items():
+          f.write(f'{input_ids.get(source, "")}\t{source_data["symbol"]}\t{source}\t{target_data["symbol"]}\t{target}\n')
 
 if __name__ == '__main__':
   get_interactions()
