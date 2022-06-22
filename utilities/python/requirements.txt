@@ -1,5 +1,5 @@
 scipy==1.7.0
-numpy==1.21.0
+numpy==1.22.0
 requests==2.22.0
 gprofiler_official==1.0.0
 pandas==1.2.5
